@@ -1,0 +1,41 @@
+# Photo Enhancement Pipeline
+# Enhances photos with denoising and contrast improvement
+
+version: "1.0"
+name: "photo_enhancement"
+description: "Enhance photos with bilateral filtering and adaptive processing"
+
+variables:
+  max_dimension: 1920
+  bilateral_diameter: 9
+  bilateral_sigma_color: 75.0
+  bilateral_sigma_space: 75.0
+
+pipeline:
+  - operation: grayscale
+    name: "convert_grayscale"
+
+  - operation: resize
+    name: "downscale_if_needed"
+    params:
+      width: ${max_dimension}
+      height: ${max_dimension}
+      interpolation: bilinear
+
+  - operation: bilateral_filter
+    name: "edge_preserving_denoise"
+    params:
+      diameter: ${bilateral_diameter}
+      sigma_color: ${bilateral_sigma_color}
+      sigma_space: ${bilateral_sigma_space}
+
+  - operation: otsu_threshold
+    name: "auto_threshold"
+
+error_handling:
+  on_error: continue
+  log_errors: true
+
+output:
+  format: png
+  save_intermediates: false

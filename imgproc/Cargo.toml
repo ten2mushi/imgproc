@@ -1,0 +1,36 @@
+[package]
+name = "imgproc"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+imgproc-core = { path = "../imgproc-core" }
+imgproc-ops = { path = "../imgproc-ops" }
+imgproc-io = { path = "../imgproc-io" }
+imgproc-pipeline = { path = "../imgproc-pipeline" }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[[example]]
+name = "basic_usage"
+path = "../examples/basic_usage.rs"
+
+[[example]]
+name = "basic_usage_with_input"
+path = "../examples/basic_usage_with_input.rs"
+
+[[example]]
+name = "pipeline_usage"
+path = "../examples/pipeline_usage.rs"
+
+[[example]]
+name = "phase3_comprehensive"
+path = "../examples/phase3_comprehensive.rs"
+
+[lints]
+workspace = true

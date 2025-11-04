@@ -1,0 +1,25 @@
+[package]
+name = "imgproc-pipeline"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+imgproc-core = { path = "../imgproc-core" }
+imgproc-ops = { path = "../imgproc-ops" }
+imgproc-io = { path = "../imgproc-io" }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_yaml = { workspace = true }
+serde_json = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+pretty_assertions = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,0 +1,30 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo lock file (uncomment for applications)
+# Cargo.lock
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Project-specific directories
+.claude/
+archive/
+docs/
+intermediates/
+morph_steps/
+input/
+output/
+
+# Markdown files
+*.md
+
+# OS-specific files
+.DS_Store
+Thumbs.db

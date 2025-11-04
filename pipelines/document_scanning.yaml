@@ -1,0 +1,58 @@
+# Document Scanning Pipeline
+# Optimizes scanned documents: denoise, threshold, and clean
+
+version: "1.0"
+name: "document_scanning"
+description: "Pipeline for cleaning scanned documents"
+
+variables:
+  page_width: 2100
+  page_height: 2970
+  denoise_kernel: 3
+  block_size: 15
+  threshold_constant: 10.0
+
+pipeline:
+  - operation: grayscale
+    name: "convert_to_grayscale"
+
+  - operation: resize
+    name: "resize_to_a4"
+    params:
+      width: ${page_width}
+      height: ${page_height}
+      interpolation: bilinear
+
+  - operation: median_filter
+    name: "remove_noise"
+    params:
+      kernel_size: ${denoise_kernel}
+
+  - operation: adaptive_threshold
+    name: "binarize"
+    params:
+      max_value: 255
+      method: gaussian
+      block_size: ${block_size}
+      constant: ${threshold_constant}
+
+  - operation: closing
+    name: "close_gaps"
+    params:
+      kernel_size: 3
+      element: rectangle
+
+  - operation: opening
+    name: "remove_speckles"
+    params:
+      kernel_size: 2
+      element: ellipse
+
+error_handling:
+  on_error: skip
+  log_errors: true
+
+output:
+  format: png
+  naming: "${input_basename}_clean.${output_ext}"
+  save_intermediates: false

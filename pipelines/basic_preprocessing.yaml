@@ -1,0 +1,35 @@
+# Basic Image Preprocessing Pipeline
+# Converts to grayscale, resizes, and applies light denoising
+
+version: "1.0"
+name: "basic_preprocessing"
+description: "Basic preprocessing pipeline for general use"
+
+variables:
+  target_size: 800
+  blur_sigma: 1.5
+
+pipeline:
+  - operation: grayscale
+    name: "convert_to_gray"
+
+  - operation: resize
+    name: "normalize_size"
+    params:
+      width: ${target_size}
+      height: ${target_size}
+      interpolation: bilinear
+
+  - operation: gaussian_blur
+    name: "denoise"
+    params:
+      kernel_size: 5
+      sigma: ${blur_sigma}
+
+error_handling:
+  on_error: stop
+  log_errors: true
+
+output:
+  format: png
+  save_intermediates: false
