@@ -21,6 +21,7 @@ intermediates/
 morph_steps/
 input/
 output/
+examples/
 
 # Markdown files
 *.md
