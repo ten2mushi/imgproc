@@ -32,5 +32,9 @@ path = "../examples/pipeline_usage.rs"
 name = "phase3_comprehensive"
 path = "../examples/phase3_comprehensive.rs"
 
+[[example]]
+name = "showcase"
+path = "../examples/showcase.rs"
+
 [lints]
 workspace = true

@@ -19,10 +19,15 @@ archive/
 docs/
 intermediates/
 morph_steps/
-input/
-output/
+# input/
+# output/
 examples/
 
+pipelines/strain_imaging/
+pipelines/test/
+visualization_steps/
+
+.gitignore
 # Markdown files
 *.md
 

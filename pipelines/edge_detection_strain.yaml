@@ -1,0 +1,74 @@
+version: "1.0"
+name: "edge detect strain"
+description: "test on strain echo"
+
+variables:
+  #anisotropic
+  aniso_iterations: 15
+  # aniso_kappa: 10.0
+  # aniso_lambda: 0.2
+  aniso_kappa: 5.0
+  aniso_lambda: 0.25
+  # canny
+  canny_low_threshold: 20.0
+  canny_high_threshold: 60.0
+  # LoG
+  log_sigma: 2.0
+  log_kernel: 7
+
+  # Zero-crossing detection
+  zero_cross_threshold: 15.0
+
+  # Morphological gradient
+  morph_grad_kernel: 3
+  morph_grad_shape: "ellipse"
+
+pipeline:
+  - operation: grayscale
+    name: "convert_to_grayscale"
+
+  - operation: anisotropic_diffusion
+    name: "prepare_for_edge_detection"
+    params:
+      iterations: ${aniso_iterations}
+      kappa: ${aniso_kappa}
+      lambda: ${aniso_lambda}
+      option: option2
+
+  # - operation: canny
+  #   name: "canny_edge_detection"
+  #   params:
+  #     low_threshold: ${canny_low_threshold}
+  #     high_threshold: ${canny_high_threshold}
+
+  # - operation: laplacian_of_gaussian
+  #   name: "log_edge_detection"
+  #   params:
+  #     sigma: ${log_sigma}
+  #     kernel_size: ${log_kernel}
+
+  - operation: zero_crossing
+    name: "zero_crossing_detection"
+    params:
+      method: laplacian_of_gaussian
+      sigma: ${log_sigma}
+      threshold: ${zero_cross_threshold}
+
+  - operation: morph_gradient
+    name: "morphological_edges"
+    params:
+      kernel_size: ${morph_grad_kernel}
+      shape: ${morph_grad_shape}
+      gradient_type: basic
+
+  # - operation: sobel
+  #   name: "sobel_gradient"
+  #   description: "Gradient-based edge magnitude"
+
+  - operation: scharr
+    name: "scharr_gradient"
+    params:
+      compute_direction: true
+
+  - operation: prewitt
+    name: "prewitt_gradient"

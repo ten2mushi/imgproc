@@ -89,6 +89,10 @@ impl PipelineExecutor {
                     // Optionally save intermediate results
                     if config.output.save_intermediates {
                         if let Some(ref intermediate_dir) = config.output.intermediate_dir {
+                            // Create intermediate directory if it doesn't exist
+                            std::fs::create_dir_all(intermediate_dir)
+                                .map_err(|e| Error::IoError(format!("Failed to create intermediate directory: {}", e)))?;
+
                             let intermediate_path = Path::new(intermediate_dir)
                                 .join(format!("{}_{:02}_{}.png",
                                     context.input_filename,
@@ -473,6 +477,240 @@ impl PipelineExecutor {
                     return Err(Error::ExecutionError {
                         operation: "closing".to_string(),
                         message: "Only grayscale images supported for closing".to_string(),
+                    });
+                }
+            }
+
+            Operation::AnisotropicDiffusion { iterations, kappa, lambda, option } => {
+                use imgproc_ops::filters::{AnisotropicDiffusion, DiffusionOption};
+
+                let diff_option = match option.as_str() {
+                    "option2" => DiffusionOption::Option2,
+                    _ => DiffusionOption::Option1,
+                };
+
+                let diffusion = AnisotropicDiffusion::new(iterations, kappa, lambda, diff_option)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = diffusion.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "anisotropic_diffusion".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::UnsharpMask { amount, radius, threshold } => {
+                use imgproc_ops::filters::UnsharpMask;
+
+                let unsharp = UnsharpMask::new(amount, radius, threshold)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = unsharp.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "unsharp_mask".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::Clahe { clip_limit, tile_grid_size } => {
+                use imgproc_ops::histogram::Clahe;
+
+                let clahe = Clahe::new(clip_limit as f64, tile_grid_size)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = clahe.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "clahe".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::HistogramEqualization => {
+                use imgproc_ops::histogram::HistogramEqualization;
+
+                let hist_eq = HistogramEqualization::new();
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = hist_eq.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "histogram_equalization".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::HistogramMatching { reference_image: _ } => {
+                // TODO: Implement histogram matching with reference image loading
+                return Err(Error::ExecutionError {
+                    operation: "histogram_matching".to_string(),
+                    message: "Not yet implemented - requires reference image loading".to_string(),
+                });
+            }
+
+            Operation::Prewitt => {
+                use imgproc_ops::edges::Prewitt;
+
+                let prewitt = Prewitt::new();
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = prewitt.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "prewitt".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::Scharr => {
+                use imgproc_ops::filters::Scharr;
+
+                let scharr = Scharr::new(false); // compute_direction = false for magnitude only
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = scharr.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "scharr".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::LaplacianOfGaussian { sigma, kernel_size } => {
+                use imgproc_ops::edges::LaplacianOfGaussian;
+
+                let log = LaplacianOfGaussian::new(sigma, kernel_size)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = log.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "laplacian_of_gaussian".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::DifferenceOfGaussians { sigma1, sigma2, kernel_size } => {
+                use imgproc_ops::edges::DifferenceOfGaussians;
+
+                let dog = DifferenceOfGaussians::new(sigma1, sigma2, kernel_size)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = dog.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "difference_of_gaussians".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::ZeroCrossing { method: _, threshold } => {
+                use imgproc_ops::edges::ZeroCrossing;
+
+                let zc = ZeroCrossing::with_laplacian(threshold)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = zc.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "zero_crossing".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::MorphGradient { kernel_size, shape, gradient_type } => {
+                use imgproc_ops::morphology::{MorphGradient, StructuringElement, GradientType};
+
+                let struct_elem = match shape {
+                    StructuringElementType::Rectangle => StructuringElement::Rectangle,
+                    StructuringElementType::Ellipse => StructuringElement::Ellipse,
+                    StructuringElementType::Cross => StructuringElement::Cross,
+                };
+
+                let grad_type = match gradient_type.as_str() {
+                    "external" => GradientType::External,
+                    "internal" => GradientType::Internal,
+                    _ => GradientType::Basic,
+                };
+
+                let morph_grad = MorphGradient::new(kernel_size, struct_elem, grad_type)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = morph_grad.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "morph_gradient".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::TopHat { kernel_size, shape, variant } => {
+                use imgproc_ops::morphology::{TopHat, TopHatVariant, StructuringElement};
+
+                let struct_elem = match shape {
+                    StructuringElementType::Rectangle => StructuringElement::Rectangle,
+                    StructuringElementType::Ellipse => StructuringElement::Ellipse,
+                    StructuringElementType::Cross => StructuringElement::Cross,
+                };
+
+                let tophat_variant = match variant.as_str() {
+                    "black" => TopHatVariant::Black,
+                    _ => TopHatVariant::White,
+                };
+
+                let tophat = TopHat::new(kernel_size, struct_elem, tophat_variant)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = tophat.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "tophat".to_string(),
+                        message: "Only grayscale images supported".to_string(),
+                    });
+                }
+            }
+
+            Operation::BlackHat { kernel_size, shape } => {
+                use imgproc_ops::morphology::{TopHat, TopHatVariant, StructuringElement};
+
+                let struct_elem = match shape {
+                    StructuringElementType::Rectangle => StructuringElement::Rectangle,
+                    StructuringElementType::Ellipse => StructuringElement::Ellipse,
+                    StructuringElementType::Cross => StructuringElement::Cross,
+                };
+
+                let blackhat = TopHat::new(kernel_size, struct_elem, TopHatVariant::Black)?;
+
+                if let Some(gray_img) = context.current_gray.take() {
+                    let result = blackhat.apply_gray(&gray_img)?;
+                    context.current_gray = Some(result);
+                } else {
+                    return Err(Error::ExecutionError {
+                        operation: "blackhat".to_string(),
+                        message: "Only grayscale images supported".to_string(),
                     });
                 }
             }
