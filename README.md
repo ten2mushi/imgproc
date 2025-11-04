@@ -34,14 +34,12 @@ imgproc/
     - Scharr - Improved gradient with better rotational symmetry
     - UnsharpMask - Image sharpening
   - Other
-    - GaussianDerivative - Derivatives of Gaussian
-      - Orders: First, Second
-      - Directions: X, Y, XX, XY, YY
-  4. Geometric Transformations (geometry.rs)
+    - GaussianDerivative - Derivatives of Gaussian (Orders: First, Second, Directions: X, Y, XX, XY, YY)
+4. Geometric Transformations (geometry.rs)
     - Resize (scale images with interpolation: nearest, bilinear, bicubic, lanczos)
     - Crop
     - Rotate
-  5. Morphological Operations (morphology.rs)
+5. Morphological Operations (morphology.rs)
     - Erode
     - Dilate
     - Opening (erosion → dilation)
@@ -51,12 +49,11 @@ imgproc/
     - Skeletonize - Zhang-Suen
     - Thinning (simplified)
     - HitOrMiss
-  6. Segmentation (segment.rs)
-
-  - Threshold (Binary, BinaryInv, Truncate, ToZero, ToZeroInv)
-  - OtsuThreshold
-  - AdaptiveThreshold (Mean, Gaussian)
-  7. Histogram Operations (histogram.rs)
+6. Segmentation (segment.rs)
+    - Threshold (Binary, BinaryInv, Truncate, ToZero, ToZeroInv)
+    - OtsuThreshold
+    - AdaptiveThreshold (Mean, Gaussian)
+7. Histogram Operations (histogram.rs)
     - Histogram
     - HistogramEqualization
     - Clahe
